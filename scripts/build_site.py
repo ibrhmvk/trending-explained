@@ -82,6 +82,7 @@ def render_post(p):
         explainer = f"""<div class="explainer-embed">
   <iframe src="{url}" loading="lazy" allowfullscreen
           title="Interactive explainer for {esc(p['repo'])}"></iframe>
+  <div class="controls-cover" aria-hidden="true"></div>
 </div>
 <p class="explainer-fallback"><a href="{url}" target="_blank" rel="noopener">Player not loading? Open the explainer on Scrimba ↗</a></p>"""
     content = f"""<article>
