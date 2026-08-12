@@ -24,7 +24,9 @@ h1 { line-height: 1.25; }
 .card h2 { margin: 0 0 .25rem; font-size: 1.15rem; }
 .card h2 a { text-decoration: none; }
 .card p { margin: .35rem 0 0; }
-.explainer-embed { position: relative; width: 100%; aspect-ratio: 16 / 10;
+.explainer-embed { position: relative; width: min(94vw, 1000px);
+                   margin-left: 50%; transform: translateX(-50%);
+                   aspect-ratio: 16 / 10;
                    border: 1px solid var(--border); border-radius: 10px;
                    overflow: hidden; margin: 1.25rem 0; background: #0d1526; }
 .explainer-embed iframe { position: absolute; inset: 0; width: 100%;
