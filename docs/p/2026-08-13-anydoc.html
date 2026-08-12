@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>How anydoc knows what a file really is before converting it to Markdown — Repo, Explained</title>
 <meta name="description" content="Firecrawl's anydoc converts Word, Excel, PowerPoint, PDF and more to clean Markdown in ~5ms of pure Rust. The best part is its spec-driven format dete">
-<link rel="stylesheet" href="../style.css?v=1fb8625a">
+<link rel="stylesheet" href="../style.css?v=ffe7752b">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
 </head>
 <body>
@@ -17,11 +17,13 @@
 <article>
 <h1>How anydoc knows what a file really is before converting it to Markdown</h1>
 <p class="meta">2026-08-13 · <a href="https://github.com/firecrawl/anydoc">firecrawl/anydoc</a> · ★ 15001</p>
-<div class="explainer-embed">
-  <iframe src="https://scrimba.com/explain/guide03514dm0p" loading="lazy" allowfullscreen
-          title="Interactive explainer for firecrawl/anydoc"></iframe>
-</div>
-<p class="explainer"><a href="https://scrimba.com/explain/guide03514dm0p">▶ Open the interactive explainer full-screen on Scrimba</a></p>
+<a class="explainer-card" href="https://scrimba.com/explain/guide03514dm0p" target="_blank" rel="noopener">
+  <span class="play">▶</span>
+  <span class="explainer-text">
+    <strong>Watch the interactive explainer</strong>
+    <span>Narrated visual walkthrough of firecrawl/anydoc · free on Scrimba</span>
+  </span>
+</a>
 <h2>What it is and why it's trending</h2>
 <p>anydoc is Firecrawl's Rust library for converting office documents — Word, PowerPoint, Excel, OpenDocument, RTF, EPUB, CSV, and text-based PDF — into GitHub-Flavored Markdown. It ships with Node.js, Python, and WebAssembly bindings, plus a CLI you can run with <code>npx @firecrawl/anydoc report.docx</code>. Nine days after launch it's at 15k stars, and the timing explains why: everyone building RAG pipelines or agents has hit the "user uploaded a .pptx" problem, and the existing answers are slow (LibreOffice headless: ~1.1s per document), narrow (mammoth does docx only), or both. anydoc's median conversion time is 4.4ms — no ML models, no subprocess, no external service. It also ships as an Agent Skill, so a coding agent can install it with one command and start reading office documents, which is exactly the distribution channel that gets a library trending in 2026.</p>
 <h2>How it actually works</h2>

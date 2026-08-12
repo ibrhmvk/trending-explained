@@ -78,12 +78,17 @@ def render_index(posts):
 def render_post(p):
     explainer = ""
     if p.get("explainer_url"):
+        # Scrimba's player can't boot inside a cross-origin iframe (its session
+        # WebSocket fails under third-party storage partitioning), so we render
+        # a click-through player card instead of an embed.
         url = esc(p["explainer_url"])
-        explainer = f"""<div class="explainer-embed">
-  <iframe src="{url}" loading="lazy" allowfullscreen
-          title="Interactive explainer for {esc(p['repo'])}"></iframe>
-</div>
-<p class="explainer"><a href="{url}">▶ Open the interactive explainer full-screen on Scrimba</a></p>"""
+        explainer = f"""<a class="explainer-card" href="{url}" target="_blank" rel="noopener">
+  <span class="play">▶</span>
+  <span class="explainer-text">
+    <strong>Watch the interactive explainer</strong>
+    <span>Narrated visual walkthrough of {esc(p['repo'])} · free on Scrimba</span>
+  </span>
+</a>"""
     content = f"""<article>
 <h1>{esc(p['title'])}</h1>
 <p class="meta">{esc(p['date'])} · <a href="{esc(p['repo_url'])}">{esc(p['repo'])}</a> · ★ {p.get('stars', '?')}</p>
