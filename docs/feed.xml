@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel>
+<title>Repo, Explained</title>
+<link>https://ibrhmvk.github.io/trending-explained/</link>
+<description>One trending GitHub repo, explained visually. Every day. Fully automated.</description>
+<item>
+<title>How anydoc knows what a file really is before converting it to Markdown</title>
+<link>https://ibrhmvk.github.io/trending-explained/p/2026-08-13-anydoc.html</link>
+<guid isPermaLink="true">https://ibrhmvk.github.io/trending-explained/p/2026-08-13-anydoc.html</guid>
+<pubDate>Thu, 13 Aug 2026 09:30:00 +0000</pubDate>
+<description>Firecrawl&#x27;s anydoc converts Word, Excel, PowerPoint, PDF and more to clean Markdown in ~5ms of pure Rust. The best part is its spec-driven format detection, which identifies files by their contents instead of trusting extensions.</description>
+</item>
+<item>
+<title>How QM switches agent vendors mid-conversation without losing history</title>
+<link>https://ibrhmvk.github.io/trending-explained/p/2026-08-13-qm.html</link>
+<guid isPermaLink="true">https://ibrhmvk.github.io/trending-explained/p/2026-08-13-qm.html</guid>
+<pubDate>Thu, 13 Aug 2026 09:30:00 +0000</pubDate>
+<description>QM is a self-hosted &#x27;multiplayer agent harness&#x27; that gives every employee an isolated agent workspace on Slack and the web — and lets an org swap Pi, Codex, or Claude Code under the same sessions.</description>
+</item>
+</channel></rss>

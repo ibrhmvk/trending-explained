@@ -20,6 +20,7 @@ claude -p "$PROMPT" \
   || { echo "claude run failed"; exit 1; }
 
 python3 scripts/build_site.py
+python3 scripts/announce.py || true
 
 if [[ -n "$(git status --porcelain)" ]]; then
   git add -A

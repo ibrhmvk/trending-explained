@@ -15,6 +15,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, "docs")
 SITE_NAME = "Repo, Explained"
 TAGLINE = "One trending GitHub repo, explained visually. Every day. Fully automated."
+SITE_URL = "https://ibrhmvk.github.io/trending-explained"
 
 PAGE = """<!doctype html>
 <html lang="en">
@@ -23,6 +24,8 @@ PAGE = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{description}">
+{meta}
+<link rel="alternate" type="application/rss+xml" title="{site}" href="{base}feed.xml">
 <link rel="stylesheet" href="{base}style.css?v={cssv}">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
 </head>
@@ -61,6 +64,27 @@ def css_version():
         return hashlib.sha1(f.read()).hexdigest()[:8]
 
 
+def og_meta(title, description, url, article=None):
+    tags = [
+        f'<meta property="og:title" content="{esc(title)}">',
+        f'<meta property="og:description" content="{esc(description)}">',
+        f'<meta property="og:url" content="{esc(url)}">',
+        f'<meta property="og:site_name" content="{esc(SITE_NAME)}">',
+        f'<meta property="og:type" content="{"article" if article else "website"}">',
+        '<meta name="twitter:card" content="summary">',
+    ]
+    if article:
+        tags.append(f'<meta property="article:published_time" content="{esc(article["date"])}">')
+        ld = {"@context": "https://schema.org", "@type": "TechArticle",
+              "headline": article["title"], "description": article["summary"],
+              "datePublished": article["date"], "url": url,
+              "about": article["repo"], "publisher": {"@type": "Organization",
+                                                      "name": SITE_NAME}}
+        tags.append('<script type="application/ld+json">'
+                    + json.dumps(ld) + "</script>")
+    return "\n".join(tags)
+
+
 def pills(p, link_repo=True):
     lang = (f'<span class="pill"><span class="dot"></span>{esc(p["language"])}</span>'
             if p.get("language") else "")
@@ -84,7 +108,8 @@ def render_index(posts):
                if cards else "<p>First post coming soon.</p>")
     return PAGE.format(title=SITE_NAME, description=TAGLINE, base="",
                        site=SITE_NAME, tagline=TAGLINE, content=content,
-                       cssv=css_version(), bodyclass="home")
+                       cssv=css_version(), bodyclass="home",
+                       meta=og_meta(SITE_NAME, TAGLINE, SITE_URL + "/"))
 
 
 def render_post(p):
@@ -104,10 +129,46 @@ def render_post(p):
 {p['body_html']}
 </article>
 <a class="back" href="../index.html">← All posts</a>"""
+    url = f"{SITE_URL}/p/{p['slug']}.html"
     return PAGE.format(title=f"{p['title']} — {SITE_NAME}",
                        description=p["summary"][:150], base="../",
                        site=SITE_NAME, tagline=TAGLINE, content=content,
-                       cssv=css_version(), bodyclass="")
+                       cssv=css_version(), bodyclass="",
+                       meta=og_meta(p["title"], p["summary"], url, article=p))
+
+
+def render_sitemap(posts):
+    urls = [f"<url><loc>{SITE_URL}/</loc></url>"]
+    urls += [f"<url><loc>{SITE_URL}/p/{esc(p['slug'])}.html</loc>"
+             f"<lastmod>{esc(p['date'])}</lastmod></url>" for p in posts]
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+            + "\n".join(urls) + "\n</urlset>\n")
+
+
+def render_rss(posts):
+    from datetime import datetime, timezone
+    from email.utils import format_datetime
+    items = []
+    for p in posts[:30]:
+        pub = format_datetime(datetime.fromisoformat(p["date"])
+                              .replace(hour=9, minute=30, tzinfo=timezone.utc))
+        url = f"{SITE_URL}/p/{p['slug']}.html"
+        items.append(f"""<item>
+<title>{esc(p['title'])}</title>
+<link>{url}</link>
+<guid isPermaLink="true">{url}</guid>
+<pubDate>{pub}</pubDate>
+<description>{esc(p['summary'])}</description>
+</item>""")
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel>
+<title>{esc(SITE_NAME)}</title>
+<link>{SITE_URL}/</link>
+<description>{esc(TAGLINE)}</description>
+{chr(10).join(items)}
+</channel></rss>
+"""
 
 
 def main():
@@ -118,6 +179,12 @@ def main():
     for p in posts:
         with open(os.path.join(DOCS, "p", p["slug"] + ".html"), "w") as f:
             f.write(render_post(p))
+    with open(os.path.join(DOCS, "sitemap.xml"), "w") as f:
+        f.write(render_sitemap(posts))
+    with open(os.path.join(DOCS, "feed.xml"), "w") as f:
+        f.write(render_rss(posts))
+    with open(os.path.join(DOCS, "robots.txt"), "w") as f:
+        f.write(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n")
     print(f"built site: {len(posts)} post(s)")
 
 

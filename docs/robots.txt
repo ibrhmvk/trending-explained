@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ibrhmvk.github.io/trending-explained/sitemap.xml
