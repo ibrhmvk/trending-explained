@@ -24,4 +24,11 @@
 <pubDate>Thu, 13 Aug 2026 09:30:00 +0000</pubDate>
 <description>Moonshot AI released full weights for Kimi K3, the first open model in the 3-trillion-parameter class. A hybrid linear-attention stack, extreme MoE sparsity, and native 4-bit training make the size actually deployable.</description>
 </item>
+<item>
+<title>How an agent-first CRM writes facts without guessing them</title>
+<link>https://ibrhmvk.github.io/trending-explained/p/2026-08-13-crm.html</link>
+<guid isPermaLink="true">https://ibrhmvk.github.io/trending-explained/p/2026-08-13-crm.html</guid>
+<pubDate>Thu, 13 Aug 2026 09:30:00 +0000</pubDate>
+<description>Comp AI&#x27;s open-source CRM makes the autonomous agent the primary user: a Postgres lease queue schedules its work, and a fixed-weight evidence ledger decides whether a fact is written or merely suggested.</description>
+</item>
 </channel></rss>

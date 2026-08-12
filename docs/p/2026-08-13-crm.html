@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How an agent-first CRM writes facts without guessing them — Repo, Explained</title>
+<meta name="description" content="Comp AI's open-source CRM makes the autonomous agent the primary user: a Postgres lease queue schedules its work, and a fixed-weight evidence ledger d">
+<meta property="og:title" content="How an agent-first CRM writes facts without guessing them">
+<meta property="og:description" content="Comp AI&#x27;s open-source CRM makes the autonomous agent the primary user: a Postgres lease queue schedules its work, and a fixed-weight evidence ledger decides whether a fact is written or merely suggested.">
+<meta property="og:url" content="https://ibrhmvk.github.io/trending-explained/p/2026-08-13-crm.html">
+<meta property="og:site_name" content="Repo, Explained">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<meta property="article:published_time" content="2026-08-13">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "How an agent-first CRM writes facts without guessing them", "description": "Comp AI's open-source CRM makes the autonomous agent the primary user: a Postgres lease queue schedules its work, and a fixed-weight evidence ledger decides whether a fact is written or merely suggested.", "datePublished": "2026-08-13", "url": "https://ibrhmvk.github.io/trending-explained/p/2026-08-13-crm.html", "about": "trycompai/crm", "publisher": {"@type": "Organization", "name": "Repo, Explained"}}</script>
+<link rel="alternate" type="application/rss+xml" title="Repo, Explained" href="../feed.xml">
+<link rel="stylesheet" href="../style.css?v=6ebbf9d7">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
+</head>
+<body class="">
+<header>
+  <a class="brand" href="../index.html">📦 Repo, Explained</a>
+  <p class="tagline">One trending GitHub repo, explained visually. Every day. Fully automated.</p>
+</header>
+<main>
+<article>
+<h1>How an agent-first CRM writes facts without guessing them</h1>
+<div class="pills"><span class="pill">2026-08-13</span><span class="pill">★ 8,305</span><span class="pill"><span class="dot"></span>TypeScript</span><a class="pill" href="https://github.com/trycompai/crm" target="_blank" rel="noopener">trycompai/crm ↗</a></div>
+<div class="explainer-embed">
+  <iframe src="https://scrimba.com/explain/guide0hn47066o" loading="lazy" allowfullscreen
+          title="Interactive explainer for trycompai/crm"></iframe>
+  <div class="controls-cover" aria-hidden="true"></div>
+</div>
+<p class="explainer-fallback"><a href="https://scrimba.com/explain/guide0hn47066o" target="_blank" rel="noopener">Player not loading? Open the explainer on Scrimba ↗</a></p>
+<h2>The CRM is where the agent keeps its notes</h2>
+<p>Comp AI's <a href="https://github.com/trycompai/crm">crm</a> hit 8,300 stars in about two weeks by taking a swing at a category everyone claims to be reinventing. Their pitch: most CRMs are a database with a form in front of it, and the "AI CRMs" bolt a chat box onto the side of that form. Both still leave the actual work &mdash; finding out what is true about a contact and writing it down &mdash; to a human. This project inverts the relationship. The agent is not a feature of the CRM; the CRM is the agent's notebook. The agent is its own deployment (built on eve, Vercel's filesystem-first framework for durable agents), running on its own schedule against its own work queue, with a research budget it spends and then stops. Close the browser and it keeps going.</p>
+<h2>How it actually works</h2>
+<p>The monorepo is a Turborepo on Bun: a Next.js front end, a NestJS API that talks to the app over tRPC, Prisma on Postgres, and <code>apps/agent</code> as the interesting part. The agent has 18 tools (<code>read_crm_history</code>, <code>identify_contact</code>, <code>record_fact</code>, <code>schedule_recheck</code>&hellip;), four skills that are literally markdown prose versioned like code, and exactly one schedule: a dispatcher that decides nothing. It leases whatever is due from the <code>agentTask</code> table and starts a session per row. The whole work queue is one SQL statement in <code>lib/tasks.ts</code>:</p>
+<pre><code>UPDATE "agentTask" AS t
+SET "leasedUntil" = ${until},
+    "attempts" = t."attempts" + 1
+FROM (
+    SELECT t2.id FROM "agentTask" AS t2
+    WHERE t2."finishedAt" IS NULL
+        AND t2."dueAt" &lt;= ${now}
+        AND (t2."leasedUntil" IS NULL OR t2."leasedUntil" &lt; ${now})
+        AND t2."attempts" &lt; ${MAX_ATTEMPTS}
+    ORDER BY t2."priority" DESC, t2."dueAt" ASC
+    LIMIT ${limit}
+    FOR UPDATE SKIP LOCKED
+) AS due
+WHERE t.id = due.id</code></pre>
+<p><code>FOR UPDATE SKIP LOCKED</code> is doing a lot of quiet work here: two dispatchers running concurrently skip each other's locked rows instead of blocking on them, so they take disjoint work with no coordinator. A run that crashes just lets its lease expire and the row becomes claimable again; a row that keeps failing hits <code>MAX_ATTEMPTS</code> and is retired. Anything that smells like "every N minutes, the ten oldest contacts" lives in a task's <code>dueAt</code>, not a cron expression &mdash; when the agent wants another look at someone in two weeks, it calls <code>schedule_recheck</code> and must state why, and that reason is shown to the sales rep.</p>
+<h2>Nothing about a person is guessed</h2>
+<p>The detail worth stealing is the evidence ledger. No tool accepts a confidence score, on the theory that a model asked to grade its own certainty will be wrong in the direction that makes it look useful. Instead, tools report what they <em>observed</em>, and <code>lib/evidence.ts</code> prices each kind of observation with a fixed weight:</p>
+<ul>
+<li><code>profile.email-match</code> &mdash; their email address is on the profile: 0.95</li>
+<li><code>crm.thread-reply</code> &mdash; they replied on a thread you have: 0.85</li>
+<li><code>employer-only</code> &mdash; employer matches, name does not: 0.2</li>
+<li><code>contradiction</code> &mdash; another source disagrees: 0</li>
+</ul>
+<p>Arithmetic, not the model, decides the outcome: strong evidence writes to the record, weak evidence becomes a suggestion a human settles. The same paranoia shapes the sandbox. The agent gets a real shell &mdash; <code>bash</code>, <code>grep</code>, <code>glob</code>, a <code>/workspace</code> for keeping dossiers &mdash; but with deny-all egress, which costs nothing because <code>web_fetch</code> runs in the app runtime and <code>web_search</code> at the model provider. And the sandbox is never handed <code>DATABASE_URL</code>. A shell with credentials and network access is exfiltration-shaped even in an internal tool; a shell with neither is a text processor.</p>
+<h2>Who should use it</h2>
+<p>Small teams can genuinely self-host it: Bun, Docker Postgres, one <code>.env</code>, Google or Microsoft sign-in, and it runs with zero external API keys by mining your own threads and signature blocks &mdash; each key (Perplexity, LinkedIn via RapidAPI) just opens one more place to look. It is deliberately single-tenant; the maintainers argue an <code>organizationId</code> that always holds one value is a column, an index and a permissions check that buys nothing. But even if you never run it, it reads well as a reference architecture for durable agents: a Postgres lease queue, budgets, evidence-gated writes, and human-in-the-loop suggestions are patterns that transfer to any agentic system you're building.</p>
+</article>
+<a class="back" href="../index.html">← All posts</a>
+</main>
+<footer>
+  <!-- AD SLOT: paste your EthicalAds / Carbon snippet here -->
+  <p>Generated automatically with Claude Code + Scrimba Explain.</p>
+</footer>
+</body>
+</html>
