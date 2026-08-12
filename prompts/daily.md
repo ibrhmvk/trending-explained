@@ -4,7 +4,7 @@ Do the following, in order:
 
 1. **Research the repo.** Fetch its README (`https://raw.githubusercontent.com/<repo>/HEAD/README.md`, falling back to `master` branch or the GitHub API readme endpoint) and, if useful, one or two key source files via `https://api.github.com/repos/<repo>/contents/`. Understand: what problem it solves, how it works at a high level, why it's trending, and one genuinely interesting implementation detail.
 
-2. **Create a Scrimba explainer** using the mcp__claude_ai_Explain__* tools (start_explainer_stream, append_explainer_chunk, finish_explainer_stream). Make it a focused 4–7 section walkthrough of the repo: the problem, the core concept/architecture (use a mermaid diagram), a walkthrough of the most interesting code path, and when you'd use it. Save the explainer's public URL.
+2. **Create a Scrimba explainer** using the mcp__claude_ai_Explain__* tools (start_explainer_stream, append_explainer_chunk, finish_explainer_stream). Make it a focused 4–7 section walkthrough of the repo: the problem, the core concept/architecture (use a mermaid diagram), a walkthrough of the most interesting code path, and when you'd use it. Save the explainer's public URL — but strip any `?claim=...` query string before publishing it (the claim token is private; write the bare `https://scrimba.com/explain/<id>` URL into the post, and append the full claim link to `data/claim-links.txt` instead).
    - If the Scrimba tools are unavailable or error out twice, continue WITHOUT an explainer and set `explainer_url` to null.
 
 3. **Write the article** as a JSON file at `data/posts/<YYYY-MM-DD>-<slug>.json` (slug: lowercase repo name, dashes only). Fields:
