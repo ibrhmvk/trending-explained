@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Kimi K3 serves 2.8 trillion parameters by waking up only 104 billion — Repo, Explained</title>
+<meta name="description" content="Moonshot AI released full weights for Kimi K3, the first open model in the 3-trillion-parameter class. A hybrid linear-attention stack, extreme MoE sp">
+<meta property="og:title" content="How Kimi K3 serves 2.8 trillion parameters by waking up only 104 billion">
+<meta property="og:description" content="Moonshot AI released full weights for Kimi K3, the first open model in the 3-trillion-parameter class. A hybrid linear-attention stack, extreme MoE sparsity, and native 4-bit training make the size actually deployable.">
+<meta property="og:url" content="https://ibrhmvk.github.io/trending-explained/p/2026-08-13-kimi-k3.html">
+<meta property="og:site_name" content="Repo, Explained">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<meta property="article:published_time" content="2026-08-13">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "How Kimi K3 serves 2.8 trillion parameters by waking up only 104 billion", "description": "Moonshot AI released full weights for Kimi K3, the first open model in the 3-trillion-parameter class. A hybrid linear-attention stack, extreme MoE sparsity, and native 4-bit training make the size actually deployable.", "datePublished": "2026-08-13", "url": "https://ibrhmvk.github.io/trending-explained/p/2026-08-13-kimi-k3.html", "about": "MoonshotAI/Kimi-K3", "publisher": {"@type": "Organization", "name": "Repo, Explained"}}</script>
+<link rel="alternate" type="application/rss+xml" title="Repo, Explained" href="../feed.xml">
+<link rel="stylesheet" href="../style.css?v=6ebbf9d7">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
+</head>
+<body class="">
+<header>
+  <a class="brand" href="../index.html">📦 Repo, Explained</a>
+  <p class="tagline">One trending GitHub repo, explained visually. Every day. Fully automated.</p>
+</header>
+<main>
+<article>
+<h1>How Kimi K3 serves 2.8 trillion parameters by waking up only 104 billion</h1>
+<div class="pills"><span class="pill">2026-08-13</span><span class="pill">★ 8,388</span><a class="pill" href="https://github.com/MoonshotAI/Kimi-K3" target="_blank" rel="noopener">MoonshotAI/Kimi-K3 ↗</a></div>
+<div class="explainer-embed">
+  <iframe src="https://scrimba.com/explain/guide02n8u5ghv" loading="lazy" allowfullscreen
+          title="Interactive explainer for MoonshotAI/Kimi-K3"></iframe>
+  <div class="controls-cover" aria-hidden="true"></div>
+</div>
+<p class="explainer-fallback"><a href="https://scrimba.com/explain/guide02n8u5ghv" target="_blank" rel="noopener">Player not loading? Open the explainer on Scrimba ↗</a></p>
+<h2>The first open 3T-class model</h2><p>Kimi K3 is Moonshot AI's new flagship: a 2.8-trillion-parameter, natively multimodal model with a 1,048,576-token context window, and — the part driving the GitHub stars — fully released weights under the Kimi K3 License. The repo itself is just a README, a license, and a tech report PDF; the weights live on Hugging Face. But that README is doing a lot of work: it publishes a benchmark table where an open model trades blows with Claude Opus 4.8, GPT-5.5, and the newest frontier releases on coding and agentic benchmarks. Open releases have flirted with the 1T mark before; nobody has published weights at 2.8T. That is the news.</p><h2>How a 2.8T model stays runnable</h2><p>The headline number is misleading in a useful way: only about 104B parameters activate per token, roughly 3.7% of the model. K3's feed-forward layers are split into 896 experts, and a router selects 16 of them per token (plus 2 shared experts that always run) under what Moonshot calls a Stable LatentMoE framework. They claim this scaled-up sparsity yields about 2.5&times; better scaling efficiency than Kimi K2.</p><p>The attention stack is the other half of the story. Of the 93 layers, 69 use Kimi Delta Attention (KDA), a linear-attention variant whose cost doesn't explode with sequence length — that's what makes a million-token context economically sane. The remaining 24 layers keep full gated MLA attention for exact long-range recall, with a new Attention Residuals (AttnRes) mechanism carrying information across the stack. It's a pragmatic hybrid: cheap approximate attention almost everywhere, exact attention where it counts.</p><p>Deployment-wise, quantization isn't an afterthought. K3 was trained with quantization-aware training from the SFT stage onward, using MXFP4 weights and MXFP8 activations — so the released 4-bit weights are what the training loop actually optimized, not a lossy post-hoc compression. At 4 bits, 2.8T parameters is roughly 1.4TB of weights instead of 5.6TB. It runs on vLLM, SGLang, and TokenSpeed.</p><h2>The interesting detail: the model remembers what it didn't say</h2><p>K3 always thinks (reasoning is non-optional; you tune it with a <code>reasoning_effort</code> field of <code>low</code>/<code>high</code>/<code>max</code>), and it was trained in what Moonshot calls preserved thinking history mode. Most reasoning models discard their chain of thought between turns. K3 requires the opposite: you must pass the assistant's <code>reasoning_content</code> back in <code>messages</code> exactly as the API returned it. The README demonstrates why with a neat example:</p><pre><code>messages = [
+    {"role": "user", "content": "Tell me three random numbers."},
+    {
+        "role": "assistant",
+        "reasoning_content": "I'll start by listing five numbers: 473, 921, 235, 215, 222, and I'll tell you the first three.",
+        "content": "473, 921, 235"
+    },
+    {"role": "user", "content": "What are the other two numbers you have in mind?"}
+]
+
+response = client.chat.completions.create(
+    model="kimi-k3", messages=messages, reasoning_effort="max"
+)
+# the assistant should mention 215 and 222 from the prior reasoning</code></pre><p>The model privately thought of five numbers, said three, and can later recall the other two — because its own past reasoning is still in context. For long agentic sessions this is significant: the model's working memory spans turns and tool calls instead of resetting at each visible message. It also means client code that "helpfully" strips reasoning fields before resending history will quietly lobotomize the model mid-task.</p><h2>Who should use it</h2><ul><li><strong>API users:</strong> it's <code>kimi-k3</code> on platform.kimi.ai, with OpenAI- and Anthropic-compatible endpoints. Moonshot pitches Kimi Code CLI as the intended agent harness.</li><li><strong>Self-hosters:</strong> real weights, real inference-engine support — but 104B active parameters means a multi-GPU cluster, not a workstation. This is open, not lightweight.</li><li><strong>Researchers:</strong> the first inspectable artifact of 3T-class training: hybrid KDA/MLA attention, 16-of-896 expert sparsity, and native MXFP4 QAT, with a tech report in the repo.</li></ul><p>Even if you never run it, K3 is worth reading as a statement of where frontier architecture is heading: sparser experts, mostly-linear attention, low-precision training from the start, and reasoning treated as persistent state rather than disposable scratch work.</p>
+</article>
+<a class="back" href="../index.html">← All posts</a>
+</main>
+<footer>
+  <!-- AD SLOT: paste your EthicalAds / Carbon snippet here -->
+  <p>Generated automatically with Claude Code + Scrimba Explain.</p>
+</footer>
+</body>
+</html>

@@ -17,4 +17,11 @@
 <pubDate>Thu, 13 Aug 2026 09:30:00 +0000</pubDate>
 <description>QM is a self-hosted &#x27;multiplayer agent harness&#x27; that gives every employee an isolated agent workspace on Slack and the web — and lets an org swap Pi, Codex, or Claude Code under the same sessions.</description>
 </item>
+<item>
+<title>How Kimi K3 serves 2.8 trillion parameters by waking up only 104 billion</title>
+<link>https://ibrhmvk.github.io/trending-explained/p/2026-08-13-kimi-k3.html</link>
+<guid isPermaLink="true">https://ibrhmvk.github.io/trending-explained/p/2026-08-13-kimi-k3.html</guid>
+<pubDate>Thu, 13 Aug 2026 09:30:00 +0000</pubDate>
+<description>Moonshot AI released full weights for Kimi K3, the first open model in the 3-trillion-parameter class. A hybrid linear-attention stack, extreme MoE sparsity, and native 4-bit training make the size actually deployable.</description>
+</item>
 </channel></rss>
