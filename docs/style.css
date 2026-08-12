@@ -25,10 +25,10 @@ h1 { line-height: 1.25; }
 .card h2 a { text-decoration: none; }
 .card p { margin: .35rem 0 0; }
 .explainer-embed { position: relative; width: min(94vw, 1000px);
-                   margin-left: 50%; transform: translateX(-50%);
                    aspect-ratio: 16 / 10;
                    border: 1px solid var(--border); border-radius: 10px;
-                   overflow: hidden; margin: 1.25rem 0; background: #0d1526; }
+                   overflow: hidden; background: #0d1526;
+                   margin: 1.25rem calc((100% - min(94vw, 1000px)) / 2); }
 .explainer-embed iframe { position: absolute; inset: 0; width: 100%;
                           height: 100%; border: 0; }
 /* Scrimba's player has no hide-controls option, so on hover-capable devices
