@@ -33,7 +33,7 @@ h1 { line-height: 1.25; }
    we mask its control bar and reveal it while the player is hovered. */
 @media (hover: hover) {
   .explainer-embed .controls-cover { position: absolute; left: 0; right: 0;
-      bottom: 0; height: 64px; background: #16181d; pointer-events: none;
+      bottom: 0; height: 52px; background: #16181d; pointer-events: none;
       opacity: 1; transition: opacity .25s ease; }
   .explainer-embed:hover .controls-cover { opacity: 0; }
 }
