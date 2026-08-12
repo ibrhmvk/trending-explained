@@ -71,8 +71,12 @@ def render_index(posts):
 def render_post(p):
     explainer = ""
     if p.get("explainer_url"):
-        explainer = (f'<p class="explainer"><a href="{esc(p["explainer_url"])}">'
-                     f"▶ Watch the interactive explainer on Scrimba</a></p>")
+        url = esc(p["explainer_url"])
+        explainer = f"""<div class="explainer-embed">
+  <iframe src="{url}" loading="lazy" allowfullscreen
+          title="Interactive explainer for {esc(p['repo'])}"></iframe>
+</div>
+<p class="explainer"><a href="{url}">▶ Open the interactive explainer full-screen on Scrimba</a></p>"""
     content = f"""<article>
 <h1>{esc(p['title'])}</h1>
 <p class="meta">{esc(p['date'])} · <a href="{esc(p['repo_url'])}">{esc(p['repo'])}</a> · ★ {p.get('stars', '?')}</p>
