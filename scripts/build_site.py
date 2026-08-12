@@ -66,8 +66,10 @@ def pills(p, link_repo=True):
             if p.get("language") else "")
     repo = (f'<a class="pill" href="{esc(p["repo_url"])}" target="_blank" rel="noopener">{esc(p["repo"])} ↗</a>'
             if link_repo else "")
+    stars = p.get("stars")
+    stars = f"{stars:,}" if isinstance(stars, int) else "?"
     return (f'<div class="pills"><span class="pill">{esc(p["date"])}</span>'
-            f'<span class="pill">★ {p.get("stars", "?"):,}</span>{lang}{repo}</div>')
+            f'<span class="pill">★ {stars}</span>{lang}{repo}</div>')
 
 
 def render_index(posts):
