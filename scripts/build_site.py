@@ -26,7 +26,7 @@ PAGE = """<!doctype html>
 <link rel="stylesheet" href="{base}style.css?v={cssv}">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
 </head>
-<body>
+<body class="{bodyclass}">
 <header>
   <a class="brand" href="{base}index.html">📦 {site}</a>
   <p class="tagline">{tagline}</p>
@@ -61,18 +61,28 @@ def css_version():
         return hashlib.sha1(f.read()).hexdigest()[:8]
 
 
+def pills(p, link_repo=True):
+    lang = (f'<span class="pill"><span class="dot"></span>{esc(p["language"])}</span>'
+            if p.get("language") else "")
+    repo = (f'<a class="pill" href="{esc(p["repo_url"])}" target="_blank" rel="noopener">{esc(p["repo"])} ↗</a>'
+            if link_repo else "")
+    return (f'<div class="pills"><span class="pill">{esc(p["date"])}</span>'
+            f'<span class="pill">★ {p.get("stars", "?"):,}</span>{lang}{repo}</div>')
+
+
 def render_index(posts):
     cards = []
     for p in posts:
         cards.append(f"""<article class="card">
   <h2><a href="p/{esc(p['slug'])}.html">{esc(p['title'])}</a></h2>
-  <p class="meta">{esc(p['date'])} · <a href="{esc(p['repo_url'])}">{esc(p['repo'])}</a> · ★ {p.get('stars', '?')} · {esc(p.get('language', ''))}</p>
-  <p>{esc(p['summary'])}</p>
+  <p class="summary">{esc(p['summary'])}</p>
+  {pills(p)}
 </article>""")
-    content = "\n".join(cards) if cards else "<p>First post coming soon.</p>"
+    content = ('<div class="cards">\n' + "\n".join(cards) + "\n</div>"
+               if cards else "<p>First post coming soon.</p>")
     return PAGE.format(title=SITE_NAME, description=TAGLINE, base="",
                        site=SITE_NAME, tagline=TAGLINE, content=content,
-                       cssv=css_version())
+                       cssv=css_version(), bodyclass="home")
 
 
 def render_post(p):
@@ -87,15 +97,15 @@ def render_post(p):
 <p class="explainer-fallback"><a href="{url}" target="_blank" rel="noopener">Player not loading? Open the explainer on Scrimba ↗</a></p>"""
     content = f"""<article>
 <h1>{esc(p['title'])}</h1>
-<p class="meta">{esc(p['date'])} · <a href="{esc(p['repo_url'])}">{esc(p['repo'])}</a> · ★ {p.get('stars', '?')}</p>
+{pills(p)}
 {explainer}
 {p['body_html']}
 </article>
-<p><a href="../index.html">← All posts</a></p>"""
+<a class="back" href="../index.html">← All posts</a>"""
     return PAGE.format(title=f"{p['title']} — {SITE_NAME}",
                        description=p["summary"][:150], base="../",
                        site=SITE_NAME, tagline=TAGLINE, content=content,
-                       cssv=css_version())
+                       cssv=css_version(), bodyclass="")
 
 
 def main():

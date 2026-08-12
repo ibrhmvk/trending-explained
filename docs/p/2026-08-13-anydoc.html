@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>How anydoc knows what a file really is before converting it to Markdown — Repo, Explained</title>
 <meta name="description" content="Firecrawl's anydoc converts Word, Excel, PowerPoint, PDF and more to clean Markdown in ~5ms of pure Rust. The best part is its spec-driven format dete">
-<link rel="stylesheet" href="../style.css?v=06617308">
+<link rel="stylesheet" href="../style.css?v=6ebbf9d7">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
 </head>
-<body>
+<body class="">
 <header>
   <a class="brand" href="../index.html">📦 Repo, Explained</a>
   <p class="tagline">One trending GitHub repo, explained visually. Every day. Fully automated.</p>
@@ -16,7 +16,7 @@
 <main>
 <article>
 <h1>How anydoc knows what a file really is before converting it to Markdown</h1>
-<p class="meta">2026-08-13 · <a href="https://github.com/firecrawl/anydoc">firecrawl/anydoc</a> · ★ 15001</p>
+<div class="pills"><span class="pill">2026-08-13</span><span class="pill">★ 15,001</span><span class="pill"><span class="dot"></span>Rust</span><a class="pill" href="https://github.com/firecrawl/anydoc" target="_blank" rel="noopener">firecrawl/anydoc ↗</a></div>
 <div class="explainer-embed">
   <iframe src="https://scrimba.com/explain/guide03514dm0p" loading="lazy" allowfullscreen
           title="Interactive explainer for firecrawl/anydoc"></iframe>
@@ -56,7 +56,7 @@
 <h2>Who should use it</h2>
 <p>If you're ingesting user-uploaded documents into an LLM pipeline — RAG, agents, search indexing — this is now the obvious first thing to try, especially from Node or Python where the bindings stay off your hot path (conversion runs on the libuv thread pool; Python releases the GIL). The WASM build is a genuinely nice touch: the demo page converts files entirely in the browser, so nothing leaves the machine. The main gap is scanned PDFs — there's no OCR, image-only pages error as unsupported, and that's deliberately left to Firecrawl's hosted API. That's also the honest read on the project: it's the open-source engine of a commercial parsing product, with the benchmark harness in-repo but vendor-run. Even discounting for that, covering fourteen format variants at single-digit milliseconds with one consistent output is a real engineering result, not a wrapper.</p>
 </article>
-<p><a href="../index.html">← All posts</a></p>
+<a class="back" href="../index.html">← All posts</a>
 </main>
 <footer>
   <!-- AD SLOT: paste your EthicalAds / Carbon snippet here -->
